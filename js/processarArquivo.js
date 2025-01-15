@@ -118,19 +118,46 @@ function configurarPaginas(totalDados) {
   const paginacaoContainer = document.querySelector('.paginacao');
   paginacaoContainer.innerHTML = ''; // Limpa os botões de paginação
 
-  // Criar botão "Anterior"
+  // Criar botão "<<"
+  const btnPrimeiraPagina = document.createElement('button');
+  btnPrimeiraPagina.innerText = '<<';
+  btnPrimeiraPagina.disabled = paginaAtual === 1;
+  btnPrimeiraPagina.onclick = () => mudarPagina(1);
+  paginacaoContainer.appendChild(btnPrimeiraPagina);
+
+  // Criar botão "<"
   const btnAnterior = document.createElement('button');
-  btnAnterior.innerText = 'Anterior';
+  btnAnterior.innerText = '<';
   btnAnterior.disabled = paginaAtual === 1;
   btnAnterior.onclick = () => mudarPagina(paginaAtual - 1);
   paginacaoContainer.appendChild(btnAnterior);
 
-  // Criar botão "Próxima"
+  // Exibir numeração das páginas (com 10 páginas ao redor da página atual)
+  const numPaginasVisiveis = 10;
+  let inicioPagina = Math.max(1, paginaAtual - Math.floor(numPaginasVisiveis / 2));
+  let fimPagina = Math.min(totalPaginas, inicioPagina + numPaginasVisiveis - 1);
+
+  for (let i = inicioPagina; i <= fimPagina; i++) {
+      const btnPagina = document.createElement('button');
+      btnPagina.innerText = i;
+      btnPagina.classList.add(i === paginaAtual ? 'pagina-ativa' : '');
+      btnPagina.onclick = () => mudarPagina(i);
+      paginacaoContainer.appendChild(btnPagina);
+  }
+
+  // Criar botão ">"
   const btnProxima = document.createElement('button');
-  btnProxima.innerText = 'Próxima';
+  btnProxima.innerText = '>';
   btnProxima.disabled = paginaAtual === totalPaginas;
   btnProxima.onclick = () => mudarPagina(paginaAtual + 1);
   paginacaoContainer.appendChild(btnProxima);
+
+  // Criar botão ">>"
+  const btnUltimaPagina = document.createElement('button');
+  btnUltimaPagina.innerText = '>>';
+  btnUltimaPagina.disabled = paginaAtual === totalPaginas;
+  btnUltimaPagina.onclick = () => mudarPagina(totalPaginas);
+  paginacaoContainer.appendChild(btnUltimaPagina);
 }
 
 // Função para mudar a página
