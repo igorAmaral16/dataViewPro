@@ -1,0 +1,204 @@
+/* Estilo Base */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Arial', sans-serif;
+}
+
+body {
+  background-color: #f5f7fa;
+  color: #333;
+  line-height: 1.6;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+header {
+  background-color: #2c3e50;
+  padding: 20px;
+  text-align: center;
+  color: #fff;
+}
+
+h1 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+/* Inputs e Botões */
+input[type="file"] {
+  margin-bottom: 20px;
+}
+
+button {
+  padding: 10px 20px;
+  background-color: #3498db;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #2980b9;
+}
+
+#botaoProcessar {
+  display: block;
+  margin: 0 auto 20px auto;
+}
+
+/* Estilo da Tabela */
+#tabela-resultados {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  display: none; /* Inicialmente oculta */
+}
+
+#tabela-resultados th, #tabela-resultados td {
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: left;
+  word-wrap: break-word; /* Permite quebra de linha */
+}
+
+#tabela-resultados th {
+  background-color: #2c3e50;
+  color: white;
+}
+
+#tabela-resultados tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+#tabela-resultados tbody tr:hover {
+  background-color: #f1f1f1;
+}
+
+/* Filtro e Botão de Download */
+.filtro-download {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+#filtroProvedor {
+  padding: 10px;
+  font-size: 1rem;
+}
+
+#botaoDownload {
+  padding: 10px 20px;
+  background-color: #27ae60;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+#botaoDownload:hover {
+  background-color: #2ecc71;
+}
+
+/* Barra de Progresso */
+.barra-progresso {
+  display: none;
+  margin: 20px 0;
+}
+
+.barra-progresso progress {
+  width: 100%;
+}
+
+.barra-progresso p {
+  text-align: center;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  h1 {
+      font-size: 1.5rem;
+  }
+
+  button, .paginacao button {
+      font-size: 0.9rem;
+      padding: 8px 15px;
+  }
+
+  /* Estilo de tabela para dispositivos móveis */
+  #tabela-resultados th, #tabela-resultados td {
+      font-size: 0.9rem;
+      padding: 8px;
+  }
+
+  /* Ajustando o layout da tabela para dispositivos pequenos */
+  #tabela-resultados {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Ajuste para a tabela não gerar rolagem horizontal desnecessária */
+  #tabela-resultados {
+    width: 100%;
+    table-layout: auto; /* Ajuste automático da largura das colunas */
+    word-wrap: break-word; /* Quebra as palavras longas se necessário */
+  }
+
+  /* Garantir que o e-mail quebre linha após o provedor, se necessário */
+  #tabela-resultados td:nth-child(1) {
+    white-space: normal; /* Permite quebra de linha após o provedor */
+    max-width: 200px; /* Define um limite para a largura */
+  }
+
+  /* Limita a largura das outras colunas, mas sem cortar os dados */
+  #tabela-resultados th, #tabela-resultados td {
+    max-width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  #tabela-resultados th {
+    font-size: 1rem;
+  }
+
+/* Adicionando paginação */
+.paginacao {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.paginacao button {
+  padding: 6px 12px;
+  font-size: 1rem;
+  margin: 0 5px;
+  background-color: #3498db;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.paginacao button:hover {
+  background-color: #2980b9;
+}
+
+.paginacao button:disabled {
+  background-color: #bdc3c7;
+  cursor: not-allowed;
+}
+
