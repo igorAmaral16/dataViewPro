@@ -173,32 +173,33 @@ button:hover {
   #tabela-resultados th {
     font-size: 1rem;
   }
-
-/* Adicionando paginação */
-.paginacao {
-  display: flex;
-  justify-content: center;
-  margin-top: 20px;
 }
-
+/* Estilo para os botões de navegação */
 .paginacao button {
-  padding: 6px 12px;
-  font-size: 1rem;
-  margin: 0 5px;
-  background-color: #3498db;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
+  padding: 8px 12px;
+  margin: 0 4px;
+  font-size: 16px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
 }
 
-.paginacao button:hover {
-  background-color: #2980b9;
-}
-
+/* Botão desativado */
 .paginacao button:disabled {
-  background-color: #bdc3c7;
+  background-color: #ddd;
   cursor: not-allowed;
 }
 
+/* Botão ativo */
+.paginacao button.pagina-ativa {
+  font-weight: bold;
+  background-color: #007bff;
+  color: white;
+}
+
+/* Garantir que o contêiner de paginação tenha um bom layout */
+.paginacao {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}

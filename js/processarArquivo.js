@@ -1,8 +1,7 @@
 let dadosProcessados = [];
 let filtroAtivo = '';
-let processoCancelado = false; // Variável para controle do cancelamento
 let paginaAtual = 1; // Página inicial
-let dadosPorPagina = 500; // Dados por página
+let dadosPorPagina = 250; // Dados por página ajustado para 250
 
 // Lista de provedores de email gratuitos mais utilizados
 const provedoresGratuitos = [
@@ -20,149 +19,142 @@ function exibirMensagemErro(mensagem) {
 
 // Função para processar o arquivo
 function processarArquivo() {
-  const arquivoInput = document.getElementById('arquivoInput');
-  const barraProgresso = document.getElementById('barraProgresso');
-  const progresso = document.getElementById('progresso');
-  const descricaoProgresso = document.getElementById('descricaoProgresso');
+    const arquivoInput = document.getElementById('arquivoInput');
+    const barraProgresso = document.getElementById('barraProgresso');
+    const progresso = document.getElementById('progresso');
+    const descricaoProgresso = document.getElementById('descricaoProgresso');
 
-  if (!arquivoInput.files[0]) {
-      exibirMensagemErro('Erro: Nenhum arquivo selecionado!');
-      return;
-  }
+    if (!arquivoInput.files[0]) {
+        exibirMensagemErro('Erro: Nenhum arquivo selecionado!');
+        return;
+    }
 
-  barraProgresso.style.display = 'block';
-  progresso.value = 0;
-  descricaoProgresso.textContent = 'Processando arquivo...';
+    barraProgresso.style.display = 'block';
+    progresso.value = 0;
+    descricaoProgresso.textContent = 'Processando arquivo...';
 
-  const reader = new FileReader();
+    const reader = new FileReader();
 
-  reader.onload = function (e) {
-      if (processoCancelado) return; // Se o processo foi cancelado, não continuar
+    reader.onload = function (e) {
+        const linhas = e.target.result.split('\n');
+        let dados = [];
 
-      const linhas = e.target.result.split('\n');
-      let dados = [];
+        for (let i = 0; i < linhas.length; i++) {
+            const partes = linhas[i].split('|');
+            
+            const email = partes[0]?.trim() || "NULL";
+            const senha = partes[1]?.trim() || "NULL";
+            
+            let provedor = "NULL";
+            if (email !== "NULL" && email.includes('@')) {
+                const dominio = email.split('@')[1];
+                provedor = dominio ? dominio.split('.')[0] : "NULL";
+            }
 
-      for (let i = 0; i < linhas.length; i++) {
-          const partes = linhas[i].split('|');
-          
-          // Verificando se a linha está vazia ou faltando dados e substituindo por "NULL"
-          const email = partes[0]?.trim() || "NULL";
-          const senha = partes[1]?.trim() || "NULL";
-          
-          // Corrigindo a extração do provedor
-          let provedor = "NULL";
-          if (email !== "NULL" && email.includes('@')) {
-              const dominio = email.split('@')[1];
-              provedor = dominio ? dominio.split('.')[0] : "NULL"; // Pega a parte antes do primeiro ponto
-          }
+            if (email !== "NULL" && senha !== "NULL" && provedor !== "NULL") {
+                dados.push({ email, senha, provedor });
+            }
 
-          // Se algum dado estiver faltando, não adiciona à tabela
-          if (email !== "NULL" && senha !== "NULL" && provedor !== "NULL") {
-              dados.push({ email, senha, provedor });
-          }
+            progresso.value = ((i + 1) / linhas.length) * 100;
+            descricaoProgresso.textContent = `Processando linha ${i + 1} de ${linhas.length}`;
+        }
 
-          progresso.value = ((i + 1) / linhas.length) * 100;
-          descricaoProgresso.textContent = `Processando linha ${i + 1} de ${linhas.length}`;
-      }
+        dadosProcessados = dados;
+        atualizarTabela(); 
 
-      dadosProcessados = dados;
-      atualizarTabela();  // Chama para atualizar a tabela com dados paginados
+        descricaoProgresso.textContent = 'Processamento concluído';
+        setTimeout(() => barraProgresso.style.display = 'none', 500);
+    };
 
-      descricaoProgresso.textContent = 'Processamento concluído';
-      setTimeout(() => barraProgresso.style.display = 'none', 500);
-  };
+    reader.onerror = function () {
+        exibirMensagemErro('Erro: Não foi possível ler o arquivo.');
+    };
 
-  reader.onerror = function () {
-      exibirMensagemErro('Erro: Não foi possível ler o arquivo.');
-      processoCancelado = true; // Marca o processo como cancelado
-  };
-
-  try {
-      reader.readAsText(arquivoInput.files[0]);
-  } catch (e) {
-      exibirMensagemErro('Erro: Falha no processamento do arquivo.');
-      processoCancelado = true;
-  }
+    try {
+        reader.readAsText(arquivoInput.files[0]);
+    } catch (e) {
+        exibirMensagemErro('Erro: Falha no processamento do arquivo.');
+    }
 }
 
 // Função para atualizar a tabela após o processamento, considerando a paginação
 function atualizarTabela() {
-  const tabela = document.getElementById('tabela-resultados');
-  const tbody = tabela.querySelector('tbody');
-  tbody.innerHTML = '';
+    const tabela = document.getElementById('tabela-resultados');
+    const tbody = tabela.querySelector('tbody');
+    tbody.innerHTML = '';
 
-  let dadosFiltrados = dadosProcessados;
+    let dadosFiltrados = dadosProcessados;
 
-  if (filtroAtivo && filtroAtivo !== 'all') {
-      dadosFiltrados = dadosProcessados.filter(dado => dado.provedor === filtroAtivo);
-  }
+    if (filtroAtivo && filtroAtivo !== 'all') {
+        dadosFiltrados = dadosProcessados.filter(dado => dado.provedor === filtroAtivo);
+    }
 
-  // Calcular o intervalo de dados a ser exibido para a página atual
-  const inicio = (paginaAtual - 1) * dadosPorPagina;
-  const fim = paginaAtual * dadosPorPagina;
-  const dadosParaExibir = dadosFiltrados.slice(inicio, fim);
+    // Calcular o intervalo de dados a ser exibido para a página atual
+    const inicio = (paginaAtual - 1) * dadosPorPagina;
+    const fim = paginaAtual * dadosPorPagina;
+    const dadosParaExibir = dadosFiltrados.slice(inicio, fim);
 
-  dadosParaExibir.forEach(dado => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${dado.email}</td><td>${dado.senha}</td><td>${dado.provedor}</td>`;
-      tbody.appendChild(tr);
-  });
+    dadosParaExibir.forEach(dado => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${dado.email}</td><td>${dado.senha}</td><td>${dado.provedor}</td>`;
+        tbody.appendChild(tr);
+    });
 
-  tabela.style.display = 'block';
-  configurarPaginas(dadosFiltrados.length); // Atualiza os controles de paginação
+    tabela.style.display = 'block';
+    configurarPaginas(dadosFiltrados.length); // Atualiza os controles de paginação
 }
 
+// Função para configurar os controles de navegação da página
+// Função para configurar os controles de navegação da página
 // Função para configurar os controles de navegação da página
 function configurarPaginas(totalDados) {
   const totalPaginas = Math.ceil(totalDados / dadosPorPagina);
   const paginacaoContainer = document.querySelector('.paginacao');
   paginacaoContainer.innerHTML = ''; // Limpa os botões de paginação
 
-  // Criar botão "<<"
-  const btnPrimeiraPagina = document.createElement('button');
-  btnPrimeiraPagina.innerText = '<<';
-  btnPrimeiraPagina.disabled = paginaAtual === 1;
-  btnPrimeiraPagina.onclick = () => mudarPagina(1);
+  // Botões de navegação: Primeira e Anterior
+  const btnPrimeiraPagina = criarBotao('<<', 1, paginaAtual === 1);
+  const btnAnterior = criarBotao('<', paginaAtual - 1, paginaAtual === 1);
   paginacaoContainer.appendChild(btnPrimeiraPagina);
-
-  // Criar botão "<"
-  const btnAnterior = document.createElement('button');
-  btnAnterior.innerText = '<';
-  btnAnterior.disabled = paginaAtual === 1;
-  btnAnterior.onclick = () => mudarPagina(paginaAtual - 1);
   paginacaoContainer.appendChild(btnAnterior);
 
-  // Exibir numeração das páginas (com 10 páginas ao redor da página atual)
+  // Exibir numeração das páginas (10 páginas ao redor da página atual)
   const numPaginasVisiveis = 10;
   let inicioPagina = Math.max(1, paginaAtual - Math.floor(numPaginasVisiveis / 2));
   let fimPagina = Math.min(totalPaginas, inicioPagina + numPaginasVisiveis - 1);
 
+  // Ajustar para garantir que sempre exibiremos 10 páginas
+  if (paginaAtual === totalPaginas) {
+      inicioPagina = Math.max(1, totalPaginas - numPaginasVisiveis + 1);
+      fimPagina = totalPaginas;
+  }
+
   for (let i = inicioPagina; i <= fimPagina; i++) {
-      const btnPagina = document.createElement('button');
-      btnPagina.innerText = i;
-      btnPagina.classList.add(i === paginaAtual ? 'pagina-ativa' : '');
-      btnPagina.onclick = () => mudarPagina(i);
+      const btnPagina = criarBotao(i, i, i === paginaAtual);
       paginacaoContainer.appendChild(btnPagina);
   }
 
-  // Criar botão ">"
-  const btnProxima = document.createElement('button');
-  btnProxima.innerText = '>';
-  btnProxima.disabled = paginaAtual === totalPaginas;
-  btnProxima.onclick = () => mudarPagina(paginaAtual + 1);
+  // Botões de navegação: Próxima e Última
+  const btnProxima = criarBotao('>', paginaAtual + 1, paginaAtual === totalPaginas);
+  const btnUltimaPagina = criarBotao('>>', totalPaginas, paginaAtual === totalPaginas);
   paginacaoContainer.appendChild(btnProxima);
-
-  // Criar botão ">>"
-  const btnUltimaPagina = document.createElement('button');
-  btnUltimaPagina.innerText = '>>';
-  btnUltimaPagina.disabled = paginaAtual === totalPaginas;
-  btnUltimaPagina.onclick = () => mudarPagina(totalPaginas);
   paginacaoContainer.appendChild(btnUltimaPagina);
 }
 
+// Função auxiliar para criar os botões
+function criarBotao(texto, pagina, desabilitado) {
+  const botao = document.createElement('button');
+  botao.innerText = texto;
+  botao.disabled = desabilitado;
+  botao.onclick = () => mudarPagina(pagina);
+  return botao;
+}
+
+
 // Função para mudar a página
 function mudarPagina(pagina) {
-  if (pagina < 1 || pagina > Math.ceil(dadosProcessados.length / dadosPorPagina)) return;
+  const totalPaginas = Math.ceil(dadosProcessados.length / dadosPorPagina);
+  if (pagina < 1 || pagina > totalPaginas) return;
   paginaAtual = pagina;
   atualizarTabela();
 }

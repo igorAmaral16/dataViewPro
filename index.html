@@ -1,58 +1,61 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DataViewPro</title>
-    <link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DataViewPro</title>
+  <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
-    <header>
-        <h1>DataViewPro - Visualização de Dados Rápida e Eficiente</h1>
-    </header>
-    
-    <main>
-        <div class="container">
-            <input type="file" id="arquivoInput" accept=".txt,.doc,.pdf">
-            <button id="botaoProcessar" onclick="processarArquivo()">Processar Arquivo</button>
-            
-            <!-- Filtro e Botão de Download -->
-            <div class="filtro-download">
-                <select id="filtroProvedor">
-                    <option value="">Filtrar por Provedor</option>
-                    <!-- Opções de provedores gratuitos vão ser inseridas aqui via JS -->
-                </select>
-                <button id="botaoDownload" onclick="baixarTabela()">Baixar Dados</button>
-            </div>
+  <header>
+    <h1>DataViewPro - Visualização de Dados Rápida e Eficiente</h1>
+  </header>
 
-            <div id="barraProgresso" class="barra-progresso">
-                <progress id="progresso" value="0" max="100"></progress>
-                <p id="descricaoProgresso">Processando arquivo...</p>
-            </div>
+  <main>
+    <div class="container">
+      <input type="file" id="arquivoInput" accept=".txt,.doc,.pdf">
+      <button id="botaoProcessar" onclick="processarArquivo()">Processar Arquivo</button>
 
-            <table id="tabela-resultados">
-              <thead>
-                  <tr>
-                      <th>Email</th>
-                      <th>Senha</th>
-                      <th>Provedor</th>
-                  </tr>
-              </thead>
-              <tbody>
-                  <!-- Os dados serão inseridos aqui pelo JavaScript -->
-              </tbody>
-          </table>
+      <!-- Filtro e Botão de Download -->
+      <div class="filtro-download">
+        <select id="filtroProvedor">
+          <option value="">Filtrar por Provedor</option>
+          <!-- Opções de provedores gratuitos vão ser inseridas aqui via JS -->
+        </select>
+        <button id="botaoDownload" onclick="baixarTabela()">Baixar Dados</button>
+      </div>
 
-          <div class="paginacao">
-            <!-- A paginação será adicionada dinamicamente aqui -->
-          </div>
-        </div>
-    </main>
+      <div id="barraProgresso" class="barra-progresso">
+        <progress id="progresso" value="0" max="100"></progress>
+        <p id="descricaoProgresso">Processando arquivo...</p>
+      </div>
 
-    <footer>
-        <p>© 2025 DataViewPro. Todos os direitos reservados.</p>
-    </footer>
+      <table id="tabela-resultados">
+        <thead>
+          <tr>
+            <th>Email</th>
+            <th>Senha</th>
+            <th>Provedor</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Os dados serão inseridos aqui pelo JavaScript -->
+        </tbody>
+      </table>
 
-    <script src="js/processarArquivo.js"></script>
+      <div class="paginacao">
+        <!-- A paginação será adicionada dinamicamente aqui -->
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2025 DataViewPro. Todos os direitos reservados.</p>
+  </footer>
+
+  <script src="js/processarArquivo.js"></script>
 </body>
+
 </html>
