@@ -13,7 +13,8 @@ body {
 }
 
 .container {
-  max-width: 1200px;
+  width: 100%; /* Garante que a largura seja 100% */
+  max-width: 1200px; /* Limita a largura máxima */
   margin: 20px auto;
   padding: 20px;
   background-color: #fff;
@@ -58,18 +59,20 @@ button:hover {
   margin: 0 auto 20px auto;
 }
 
-/* Estilo da Tabela */
+/* Estilos para a tabela em dispositivos maiores */
 #tabela-resultados {
-  width: 100%;
+  width: 100%; /* Tabela preenchendo a tela */
   border-collapse: collapse;
-  margin-bottom: 20px;
+  margin-bottom: 0; /* Remove o espaço inferior */
   display: none; /* Inicialmente oculta */
+  table-layout: fixed; /* Garante que a tabela ocupe todo o espaço disponível */
+  overflow-x: auto; /* Garante que não quebre o layout na versão mobile */
 }
 
 #tabela-resultados th, #tabela-resultados td {
   border: 1px solid #ddd;
-  padding: 12px;
-  text-align: left;
+  padding: 8px; /* Reduz o padding para otimizar o espaço */
+  text-align: center;
   word-wrap: break-word; /* Permite quebra de linha */
 }
 
@@ -85,6 +88,37 @@ button:hover {
 #tabela-resultados tbody tr:hover {
   background-color: #f1f1f1;
 }
+
+/* Estilos específicos para dispositivos móveis */
+@media screen and (max-width: 768px) {
+  #tabela-resultados {
+    width: 100%; /* Garante que a tabela preencha o espaço da tela */
+    overflow-x: auto; /* Adiciona rolagem horizontal somente se necessário */
+    display: block; /* Garante que a tabela ocupe o espaço disponível no mobile */
+  }
+
+  #tabela-resultados th, #tabela-resultados td {
+    padding: 6px; /* Reduz ainda mais o padding no mobile */
+    font-size: 14px; /* Ajusta o tamanho da fonte para ser mais legível no mobile */
+  }
+}
+
+/* Estilos dos botões - Mantendo apenas as cores e posições */
+button {
+  background-color: #3498db; /* Cor original do botão */
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 10px;
+  position: relative; /* Mantém as posições originais */
+}
+
+button:hover {
+  background-color: #2980b9; /* Cor do hover original */
+}
+
 
 /* Filtro e Botão de Download */
 .filtro-download {
@@ -174,6 +208,7 @@ button:hover {
     font-size: 1rem;
   }
 }
+
 /* Estilo para os botões de navegação */
 .paginacao button {
   padding: 8px 12px;
@@ -202,4 +237,17 @@ button:hover {
   gap: 4px;
   flex-wrap: wrap;
   margin-top: 20px;
+}
+
+/* Estilo do Rodapé */
+#rodape {
+  position: fixed;
+  bottom: -60px; /* Inicialmente oculto */
+  width: 100%;
+  background-color: #333;
+  color: white;
+  text-align: center;
+  padding: 3px;
+  transition: bottom 0.3s ease-in-out; /* Suaviza a transição */
+  z-index: 1000; /* Garante que o rodapé fique sobre outros elementos */
 }

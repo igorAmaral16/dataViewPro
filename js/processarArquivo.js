@@ -2,6 +2,22 @@ let dadosProcessados = [];
 let filtroAtivo = '';
 let paginaAtual = 1; // Página inicial
 let dadosPorPagina = 250; // Dados por página ajustado para 250
+let ultimoScroll = window.scrollY;
+
+window.addEventListener('scroll', () => {
+    const rodape = document.getElementById('rodape');
+    let atualScroll = window.scrollY;
+
+    if (atualScroll > ultimoScroll) {
+        // Rolando para baixo - exibe o rodapé
+        rodape.style.bottom = '0';
+    } else {
+        // Rolando para cima - esconde o rodapé
+        rodape.style.bottom = '-60px';
+    }
+
+    ultimoScroll = atualScroll;
+});
 
 // Lista de provedores de email gratuitos mais utilizados
 const provedoresGratuitos = [
@@ -19,62 +35,158 @@ function exibirMensagemErro(mensagem) {
 
 // Função para processar o arquivo
 function processarArquivo() {
-    const arquivoInput = document.getElementById('arquivoInput');
-    const barraProgresso = document.getElementById('barraProgresso');
-    const progresso = document.getElementById('progresso');
-    const descricaoProgresso = document.getElementById('descricaoProgresso');
+  const arquivoInput = document.getElementById('arquivoInput');
+  const barraProgresso = document.getElementById('barraProgresso');
+  const progresso = document.getElementById('progresso');
+  const descricaoProgresso = document.getElementById('descricaoProgresso');
 
-    if (!arquivoInput.files[0]) {
-        exibirMensagemErro('Erro: Nenhum arquivo selecionado!');
-        return;
-    }
+  if (!arquivoInput.files[0]) {
+      return; // Não faz nada se nenhum arquivo for selecionado
+  }
 
-    barraProgresso.style.display = 'block';
-    progresso.value = 0;
-    descricaoProgresso.textContent = 'Processando arquivo...';
+  barraProgresso.style.display = 'block';
+  progresso.value = 0;
+  descricaoProgresso.textContent = 'Processando arquivo...';
 
-    const reader = new FileReader();
+  const reader = new FileReader();
 
-    reader.onload = function (e) {
-        const linhas = e.target.result.split('\n');
-        let dados = [];
+  reader.onload = function (e) {
+      const conteudo = e.target.result;
 
-        for (let i = 0; i < linhas.length; i++) {
-            const partes = linhas[i].split('|');
-            
-            const email = partes[0]?.trim() || "NULL";
-            const senha = partes[1]?.trim() || "NULL";
-            
-            let provedor = "NULL";
-            if (email !== "NULL" && email.includes('@')) {
-                const dominio = email.split('@')[1];
-                provedor = dominio ? dominio.split('.')[0] : "NULL";
-            }
+      // Verifica se o arquivo é um .docx
+      if (arquivoInput.files[0].type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+          // Usando uma biblioteca como mammoth.js para extrair o conteúdo de arquivos .docx
+          const docxContent = e.target.result;
 
-            if (email !== "NULL" && senha !== "NULL" && provedor !== "NULL") {
-                dados.push({ email, senha, provedor });
-            }
+          mammoth.extractRawText({ arrayBuffer: docxContent })
+              .then(function (result) {
+                  const textoExtraido = result.value; // Aqui é onde pegamos o texto
+                  processarTexto(textoExtraido); // Processa o texto extraído
+              });
+      } else {
+          // Para arquivos .txt, processamos o texto diretamente
+          processarTexto(conteudo); // Passa o conteúdo para processarTexto
+      }
+  };
 
-            progresso.value = ((i + 1) / linhas.length) * 100;
-            descricaoProgresso.textContent = `Processando linha ${i + 1} de ${linhas.length}`;
-        }
+  reader.onerror = function () {
+      barraProgresso.style.display = 'none'; // Caso haja erro, esconde a barra de progresso
+  };
 
-        dadosProcessados = dados;
-        atualizarTabela(); 
+  try {
+      reader.readAsText(arquivoInput.files[0], 'utf-8'); // Lê o arquivo como texto (para arquivos .txt)
+  } catch (e) {
+      barraProgresso.style.display = 'none'; // Caso ocorra um erro na leitura, esconde a barra
+  }
+}
 
-        descricaoProgresso.textContent = 'Processamento concluído';
-        setTimeout(() => barraProgresso.style.display = 'none', 500);
-    };
+// Função para processar o texto extraído
+function processarArquivo() {
+  const arquivoInput = document.getElementById('arquivoInput');
+  const barraProgresso = document.getElementById('barraProgresso');
+  const progresso = document.getElementById('progresso');
+  const descricaoProgresso = document.getElementById('descricaoProgresso');
 
-    reader.onerror = function () {
-        exibirMensagemErro('Erro: Não foi possível ler o arquivo.');
-    };
+  if (!arquivoInput.files[0]) {
+      exibirMensagemErro('Erro: Nenhum arquivo selecionado!');
+      return;
+  }
 
-    try {
-        reader.readAsText(arquivoInput.files[0]);
-    } catch (e) {
-        exibirMensagemErro('Erro: Falha no processamento do arquivo.');
-    }
+  barraProgresso.style.display = 'block';
+  progresso.value = 0;
+  descricaoProgresso.textContent = 'Processando arquivo...';
+
+  const reader = new FileReader();
+  const arquivo = arquivoInput.files[0];
+
+  // Verifica se o arquivo é .docx ou .txt
+  const extensao = arquivo.name.split('.').pop().toLowerCase();
+
+  reader.onload = function (e) {
+      const resultado = e.target.result;
+
+      if (extensao === 'docx') {
+          // Processar o arquivo .docx com o Mammoth
+          mammoth.extractRawText({ arrayBuffer: resultado })
+              .then(function (result) {
+                  const textoProcessado = result.value;
+
+                  if (!textoProcessado) {
+                      exibirMensagemErro('Erro: O arquivo .docx não contém conteúdo de texto válido.');
+                      return;
+                  }
+
+                  processarTexto(textoProcessado);
+              })
+              .catch(function (error) {
+                  exibirMensagemErro('Erro ao processar o arquivo .docx.');
+              });
+      } else if (extensao === 'txt') {
+          // Processar o arquivo .txt diretamente como texto
+          const textoProcessado = resultado;
+
+          if (!textoProcessado) {
+              exibirMensagemErro('Erro: O arquivo .txt está vazio.');
+              return;
+          }
+
+          processarTexto(textoProcessado);
+      } else {
+          exibirMensagemErro('Erro: Formato de arquivo não suportado. Por favor, selecione um arquivo .docx ou .txt.');
+      }
+  };
+
+  reader.onerror = function () {
+      exibirMensagemErro('Erro: Não foi possível ler o arquivo.');
+  };
+
+  try {
+      if (extensao === 'txt') {
+          // Para arquivos .txt, use readAsText
+          reader.readAsText(arquivo);
+      } else {
+          // Para arquivos .docx, use readAsArrayBuffer
+          reader.readAsArrayBuffer(arquivo);
+      }
+  } catch (e) {
+      exibirMensagemErro('Erro: Falha no processamento do arquivo.');
+  }
+
+  function processarTexto(texto) {
+      // Verifica se o conteúdo é uma string e a divide
+      if (typeof texto !== 'string') {
+          exibirMensagemErro('Erro: O conteúdo do arquivo não é uma string válida.');
+          return;
+      }
+
+      const linhas = texto.split('\n');
+      let dados = [];
+
+      for (let i = 0; i < linhas.length; i++) {
+          const partes = linhas[i].split('|');
+          const email = partes[0]?.trim() || "NULL";
+          const senha = partes[1]?.trim() || "NULL";
+
+          let provedor = "NULL";
+          if (email !== "NULL" && email.includes('@')) {
+              const dominio = email.split('@')[1];
+              provedor = dominio ? dominio.split('.')[0] : "NULL";
+          }
+
+          if (email !== "NULL" && senha !== "NULL" && provedor !== "NULL") {
+              dados.push({ email, senha, provedor });
+          }
+
+          progresso.value = ((i + 1) / linhas.length) * 100;
+          descricaoProgresso.textContent = `Processando linha ${i + 1} de ${linhas.length}`;
+      }
+
+      dadosProcessados = dados;
+      atualizarTabela();
+
+      descricaoProgresso.textContent = 'Processamento concluído';
+      setTimeout(() => barraProgresso.style.display = 'none', 500);
+  }
 }
 
 // Função para atualizar a tabela após o processamento, considerando a paginação
